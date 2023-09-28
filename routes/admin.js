@@ -3,11 +3,14 @@ var router = express.Router();
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  res.send('admin');
 });
 
 router.get('/login', function(req, res, next) {
-  res.send('login');
+    const json = {
+        "Hoola": "dieff"
+    }
+    res.json(json);
 });
 
 module.exports = router;
