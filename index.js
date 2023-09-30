@@ -6,7 +6,7 @@ const app = express();
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const adminRouter = require('./routes/admin');
+const adminsRouter = require('./routes/admins');
 
 app.use(express.json());
 app.use(cors({
@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/admin', adminRouter);
+app.use('/admins', adminsRouter);
 
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
