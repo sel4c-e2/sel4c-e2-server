@@ -1,13 +1,16 @@
 var express = require('express');
+var connection = require('../db');
 var router = express.Router();
 
-/* GET home page. */
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
-router.get('/login', function(req, res, next) {
-  res.send('login');
+  const query = 'SELECT * FROM countries';
+  connection.query(query, function (error, results, fields) {
+    if (error) {
+      console.error('Error querying the database:', error);
+      return res.status(500).send('Internal Server Error');
+    }
+    res.json(results);
+  });
 });
 
 module.exports = router;

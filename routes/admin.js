@@ -1,16 +1,15 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('admin');
+router.get('/:email', function(req, res, next) {
+  const { email } = req.params;
+  console.log(email);
+  res.sendStatus(202);
 });
 
-router.get('/login', function(req, res, next) {
-    const json = {
-        "Hoola": "dieff"
-    }
-    res.json(json);
+router.post('/login', function(req, res, next) {
+  const { email, pwd } = res.body;
+  res.sendStatus(200);
 });
 
 module.exports = router;
