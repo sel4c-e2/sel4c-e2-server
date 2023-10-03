@@ -1,15 +1,7 @@
 var express = require('express');
+var connection = require('../db');
 var router = express.Router();
-var jwt = require('jsonwebtoken')
-
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
-
-router.get('/login', function(req, res, next) {
-  res.send('login');
-});
+var jwt = require('jsonwebtoken');
 
 const users = [ //con base de datos
   {username:'fernandogar', password:'holahola'},
@@ -32,5 +24,64 @@ router.post('/prueba', (req, res) => {
   }
 
 })
+
+// Get all users
+router.get('/', function(req, res, next) {
+  console.log("--GET: /users--");
+
+  const query = 'SELECT * FROM users';
+  
+  connection.query(query, function (error, results, fields) {
+    if (error) {
+      console.error('Error querying the database:', error);
+      return res.status(500).json({ message: 'Internal Server Error', ...results });
+    }
+    if (results.length == 0) {
+      console.log("No content");
+      return res.status(404).json({ message: 'No users found', ...results });
+    }
+    console.log("OK");
+    return res.status(200).json({ message: `Found ${results.length} users`, ...results });
+  });
+});
+
+// Register user
+router.post('/', function(req, res, next) {
+  console.log("--POST: /users--");
+
+  const { name, lastname, email, password, gender, country_id } = req.body;
+
+  const query = 'INSERT INTO users (name, lastname, email, password, gender, country_id) VALUES (?, ?, ?, PASSWORD(?), ?, ?)';
+  const values = [name, lastname, email, password, gender, country_id];
+
+  connection.query(query, values, function (error, results, fields) {
+    if (error) {
+      console.error('Error creating new user:', error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
+    console.log("Created");
+    return res.status(201).json({ message: 'User created successfully' });
+  });
+});
+
+// Get a specific user by user_id
+router.get('/:id', function(req, res, next) {
+  const userId = req.params.id;
+  console.log(`--GET: /users/${userId}--`);
+  const query = 'SELECT * FROM users WHERE user_id = ? LIMIT 1';
+
+  connection.query(query, [userId], function (error, results, fields) {
+    if (error) {
+      console.error('Error querying the database:', error);
+      return res.status(500).json({ message: 'Internal Server Error', ...results[0] });
+    }
+    if (results.length === 0) {
+      console.log("Not found");
+      return res.status(404).json({ message: 'User not found', ...results[0] });
+    }
+    console.log("OK");
+    return res.status(200).json({ message: `User ${userId} found`, ...results[0] });
+  });
+});
 
 module.exports = router;
