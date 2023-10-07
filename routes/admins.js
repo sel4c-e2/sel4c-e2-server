@@ -87,6 +87,33 @@ router.get('/:id', function(req, res, next) {
   }
 });
 
+// Get a specific admin by email
+router.get('/:email', function(req, res, next) {
+  try {
+    const email = req.params.email;
+  
+    console.log(`--GET: /admins/${email}--`);
+
+    const query = 'SELECT * FROM admins WHERE email = ?';
+
+    connection.query(query, [email], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (results.length === 0) {
+        console.log('Admin not found');
+        return res.status(404).json({ message: 'Administrador no encontrado' });
+      }
+      console.log(`Admin ${email} found`);
+      return res.status(200).json({ message: `Administrador ${email} encontrado`, ...results[0] });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Update a specific admin by admin_id
 router.put('/:id', function(req, res, next) {
   try {

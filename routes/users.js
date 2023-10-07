@@ -109,6 +109,33 @@ router.get('/:id', function(req, res, next) {
   }
 });
 
+// Get a specific user by email
+router.get('/:email', function(req, res, next) {
+  try {
+    const email = req.params.email;
+  
+    console.log(`--GET: /users/${email}--`);
+
+    const query = 'SELECT * FROM users WHERE email = ?';
+
+    connection.query(query, [email], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (results.length === 0) {
+        console.log('User not found');
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+      console.log(`User ${email} found`);
+      return res.status(200).json({ message: `Usuario ${email} encontrado`, ...results[0] });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Update a specific user by user_id
 router.put('/:id', function(req, res, next) {
   try {
