@@ -46,22 +46,36 @@ router.get('/', function(req, res, next) {
 });
 
 // Register user
-router.post('/', function(req, res, next) {
+router.post('/', async function(req, res, next) {
+  console.log(req.body)
   const { name, lastname, email, password, gender, country_id } = req.body;
+  // Input validation
+  if (!name || !lastname || !email || !password || !gender || !country_id) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
 
   console.log("--POST: /users--");
 
-  const query = 'INSERT INTO users (name, lastname, email, password, gender, country_id) VALUES (?, ?, ?, PASSWORD(?), ?, ?)';
-  const values = [name, lastname, email, password, gender, country_id];
+  // Password hashing
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log(hashedPassword)
+    const query = 'INSERT INTO users (name, email, password, gender, country_id) VALUES (?, ?, ?, ?, ?, ?)';
+    const values = [name, email, hashedPassword, gender, country_id];
 
-  connection.query(query, values, function (error, results, fields) {
-    if (error) {
-      console.error('Error creating new user:', error);
-      return res.status(500).json({ message: 'Internal Server Error' });
-    }
-    console.log('User created successfully');
-    return res.status(201).json({ message: 'User created successfully' });
-  });
+    connection.query(query, values, function (error, results, fields) {
+      if (error) {
+        console.error('Error creating new user:', error.stack);
+        return res.status(500).json({ message: 'Internal Server Error' });
+      }
+      console.log('User created successfully');
+      return res.status(201).json({ message: 'User created successfully' });
+    });
+    
+  } catch (hashError) {
+    console.error('Error hashing password:', hashError.stack);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
 });
 
 // Get a specific user by user_id
