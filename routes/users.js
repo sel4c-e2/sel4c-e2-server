@@ -235,7 +235,7 @@ router.post('/login', function(req, res, next) {
   try {
     const { email, password } = req.body;
 
-    console.log(`--POST: /login--`);
+    console.log(`--POST: /users/login--`);
 
     const query = 'SELECT password FROM users WHERE email = ?';
 
