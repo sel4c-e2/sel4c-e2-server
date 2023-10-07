@@ -54,7 +54,7 @@ router.get('/', function(req, res, next) {
 // Register user
 router.post('/', function(req, res, next) {
   try {
-    const { name, lastname, email, password, gender, country_id } = req.body;
+    const { name, lastname, email, password, gender, age, country_id } = req.body;
 
     console.log("--POST: /users--");
 
@@ -64,8 +64,8 @@ router.post('/', function(req, res, next) {
         return res.status(500).json({ message: 'Error interno del servidor' });
       }
 
-      const query = 'INSERT INTO users (name, lastname, email, password, gender, country_id) VALUES (?, ?, ?, ?, ?, ?)';
-      const values = [name, lastname, email, hash, gender, country_id];
+      const query = 'INSERT INTO users (name, lastname, email, password, gender, age, country_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+      const values = [name, lastname, email, hash, gender, age, country_id];
 
       connection.query(query, values, function (error, results, fields) {
         if (error) {
