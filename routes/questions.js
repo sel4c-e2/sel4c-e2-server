@@ -54,7 +54,7 @@ router.get('/answers/userId/:userId', function(req, res, next) {
     try {
         const userId = req.params.userId;
 
-        console.log(`--GET: /questions/results/userId/${userId}--`);
+        console.log(`--GET: /questions/answers/userId/${userId}--`);
 
         const query = 'SELECT * FROM questions WHERE user_id = ?';
 
@@ -79,7 +79,7 @@ router.get('/answers/userId/:userId', function(req, res, next) {
 router.post('/answers', function(req, res, next) {
     try {
         const { userId, questionId, answer } = req.body;
-        console.log(`--POST: /questions/results--`);
+        console.log(`--POST: /questions/answers--`);
 
         const checkQuery = 'SELECT * FROM questions_answers WHERE user_id = ? AND question_id = ?';
 
