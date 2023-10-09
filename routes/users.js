@@ -31,7 +31,7 @@ router.get('/', function(req, res, next) {
   try {
     console.log("--GET: /users--");
 
-    const query = ` SELECT users.*, countries.name as country_name, universities.name as university_name FROM users LEFT JOIN countries ON users.country_id = countries.id LEFT JOIN universities ON users.university_id = universities.id`;
+    const query = ` SELECT users.*, countries.name as country_name, universities.name as university_name FROM users LEFT JOIN countries ON users.country_id = countries.country_id LEFT JOIN universities ON users.university_id = universities.university_id`;
   
     connection.query(query, function (error, results, fields) {
       if (error) {
