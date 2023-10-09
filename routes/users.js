@@ -4,27 +4,27 @@ var jwt = require('jsonwebtoken');
 var connection = require('../db');
 var router = express.Router();
 
-const users = [ //con base de datos
-  {username:'fernandogar', password:'holahola'},
-];
+// const users = [ //con base de datos
+//   {username:'fernandogar', password:'holahola'},
+// ];
 
-router.post('/prueba', (req, res) => {
-  const username = req.body.username
-  const password = req.body.password
+// router.post('/prueba', (req, res) => {
+//   const username = req.body.username
+//   const password = req.body.password
 
-  const authUser = users.find(user => user.username == username && user.password == password) //con base de datos
-  if(authUser) {
-    const token =jwt.sign({username:username},"SECRET")
-    if(token) {
-      res.json({token: token})
-    } else {
-      res.json({message: "Authentication failed", success: false})
-    }
-  } else {
-    res.json({message: "Authentication failed", success:false})
-  }
+//   const authUser = users.find(user => user.username == username && user.password == password) //con base de datos
+//   if(authUser) {
+//     const token =jwt.sign({username:username},"SECRET")
+//     if(token) {
+//       res.json({token: token})
+//     } else {
+//       res.json({message: "Authentication failed", success: false})
+//     }
+//   } else {
+//     res.json({message: "Authentication failed", success:false})
+//   }
 
-});
+// });
 
 // Get all users
 router.get('/', function(req, res, next) {

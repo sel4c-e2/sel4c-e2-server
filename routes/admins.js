@@ -29,6 +29,42 @@ router.get('/', function(req, res, next) {
   }
 });
 
+// Get a specific admin with token
+router.get('/admin', function(req, res, next) {
+  try {
+    const token = req.headers.authorization;
+  
+    console.log(`--GET: /admins/admin--`);
+
+    if (!token) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
+    jwt.verify(token.replace('Bearer ', ''), 'SECRET', function(tokenErr, decoded) {
+      if (tokenErr) {
+        console.log("Error: ", tokenErr);
+        return res.status(401).json({ message: 'Token no valido' });
+      }
+      const email = decoded.email;
+      const query = 'SELECT * FROM admins WHERE email = ?';
+      connection.query(query, [email], function (error, results, fields) {
+        if (error) {
+          console.error('Error querying the database:', error);
+          return res.status(500).json({ message: 'Error interno del servidor' });
+        }
+        if (results.length === 0) {
+          console.log('Admin not found');
+          return res.status(404).json({ message: 'Administrador no encontrado' });
+        }
+        console.log(`Admin ${email} found`);
+        return res.status(200).json({ message: `Administrador ${email} encontrado`, ...results[0] });
+      });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Register admin
 router.post('/', function(req, res, next) {
   try {
@@ -51,7 +87,8 @@ router.post('/', function(req, res, next) {
           return res.status(500).json({ message: 'Error interno del servidor' });
         }
         console.log('Admin created successfully');
-        return res.status(201).json({ message: 'Usuario creada con éxito' });
+        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        return res.status(201).json({ message: 'Usuario creada con éxito', name, lastname, email, token });
       });
     });
   } catch (tcErr) {
@@ -65,7 +102,7 @@ router.get('/:id', function(req, res, next) {
   try {
     const adminId = req.params.id;
   
-    console.log(`--GET: /admins/${userId}--`);
+    console.log(`--GET: /admins/${adminId}--`);
 
     const query = 'SELECT * FROM admins WHERE admin_id = ?';
 
@@ -80,33 +117,6 @@ router.get('/:id', function(req, res, next) {
       }
       console.log(`Admin ${adminId} found`);
       return res.status(200).json({ message: `Administrador ${userId} encontrado`, ...results[0] });
-    });
-  } catch (tcErr) {
-    console.error('Error:', tcErr);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-// Get a specific admin by email
-router.get('/:email', function(req, res, next) {
-  try {
-    const email = req.params.email;
-  
-    console.log(`--GET: /admins/${email}--`);
-
-    const query = 'SELECT * FROM admins WHERE email = ?';
-
-    connection.query(query, [email], function (error, results, fields) {
-      if (error) {
-        console.error('Error querying the database:', error);
-        return res.status(500).json({ message: 'Error interno del servidor' });
-      }
-      if (results.length === 0) {
-        console.log('Admin not found');
-        return res.status(404).json({ message: 'Administrador no encontrado' });
-      }
-      console.log(`Admin ${email} found`);
-      return res.status(200).json({ message: `Administrador ${email} encontrado`, ...results[0] });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
