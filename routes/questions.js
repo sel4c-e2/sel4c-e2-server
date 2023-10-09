@@ -50,7 +50,7 @@ router.get('/type/:type', function(req, res, next) {
     }
 });
 
-router.get('/results/userId/:userId', function(req, res, next) {
+router.get('/answers/userId/:userId', function(req, res, next) {
     try {
         const userId = req.params.userId;
 
@@ -71,6 +71,18 @@ router.get('/results/userId/:userId', function(req, res, next) {
             return res.status(200).json({ message: `El usuario ${userId} ha contestado ${results.length} preguntas`, data: results });
         });
     } catch (tcErr) {
+        console.error('Error:', tcErr);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
+
+router.post('/answers', function(req, res, next) {
+    try {
+        const { userId, questionId, answer } = req.body;
+        console.log(`--POST: /questions/results--`);
+
+
+    } catch (tcError) {
         console.error('Error:', tcErr);
         return res.status(500).json({ message: 'Error interno del servidor' });
     }
