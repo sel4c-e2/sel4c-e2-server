@@ -109,8 +109,9 @@ router.post('/', function(req, res, next) {
           return res.status(500).json({ message: 'Error interno del servidor' });
         }
         console.log('User created successfully');
+        const user_id = results.insertId;
         const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
-        return res.status(201).json({ message: 'Usuario creada con éxito', name, age, gender, email, country_id, university_id, token });
+        return res.status(201).json({ message: 'Usuario creada con éxito', user_id, name, age, gender, email, country_id, university_id, token });
       });
     });
   } catch (tcErr) {
@@ -125,7 +126,7 @@ router.post('/login', function(req, res, next) {
 
     console.log(`--POST: /users/login--`);
 
-    const query = 'SELECT password FROM users WHERE email = ?';
+    const query = 'SELECT * FROM users WHERE email = ?';
 
     connection.query(query, [email], function (error, results, fields) {
       if (error) {
@@ -136,6 +137,7 @@ router.post('/login', function(req, res, next) {
         console.log('User not found');
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
+      const user = results[0];
       const hashedPassword = results[0].password;
       bcrypt.compare(password, hashedPassword, function(err, result) {
         if (err) {
@@ -148,7 +150,7 @@ router.post('/login', function(req, res, next) {
         }
         const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
         console.error('Authentication successful');
-        return res.status(200).json({ message: 'Autenticación exitosa', token });
+        return res.status(200).json({ message: 'Autenticación exitosa', token, ...user});
       });
     });
   } catch (tcErr) {
