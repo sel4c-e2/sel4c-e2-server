@@ -43,7 +43,7 @@ router.get('/', function(req, res, next) {
         return res.status(404).json({ message: 'No se encontraron usuarios' });
       }
       console.log(`Found ${results.length} users`);
-      return res.status(200).json({ message: `Se encontraron ${results.length} usuarios`, ...results });
+      return res.status(200).json({ message: `Se encontraron ${results.length} usuarios`, users: results });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
@@ -100,7 +100,7 @@ router.post('/', function(req, res, next) {
         return res.status(500).json({ message: 'Error interno del servidor' });
       }
 
-      const query = 'INSERT INTO users (name, age, gender, email, country_id, university_id, password) VALUES (?, ?, ?, ?, ?, ?,?, ?)';
+      const query = 'INSERT INTO users (name, age, gender, email, country_id, university_id, password) VALUES (?, ?, ?, ?, ?, ?, ?)';
       const values = [name, age, gender, email, country_id, university_id, hash];
 
       connection.query(query, values, function (error, results, fields) {
