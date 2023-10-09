@@ -1,7 +1,7 @@
 var express = require('express');
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
-var connection = require('../db');
+var { connection } = require('../db');
 var router = express.Router();
 
 // const users = [ //con base de datos
@@ -14,7 +14,7 @@ var router = express.Router();
 
 //   const authUser = users.find(user => user.username == username && user.password == password) //con base de datos
 //   if(authUser) {
-//     const token =jwt.sign({username:username},"SECRET")
+//     const token =jwt.sign({username:username},process.env.JWT_KEY)
 //     if(token) {
 //       res.json({token: token})
 //     } else {
@@ -61,7 +61,7 @@ router.get('/user', function(req, res, next) {
     if (!token) {
       return res.status(401).json({ message: 'No autorizado' });
     }
-    jwt.verify(token.replace('Bearer ', ''), 'SECRET', function(tokenErr, decoded) {
+    jwt.verify(token.replace('Bearer ', ''), process.env.JWT_KEY, function(tokenErr, decoded) {
       if (tokenErr) {
         console.log("Error: ", tokenErr);
         return res.status(401).json({ message: 'Token no valido' });
@@ -109,7 +109,7 @@ router.post('/', function(req, res, next) {
           return res.status(500).json({ message: 'Error interno del servidor' });
         }
         console.log('User created successfully');
-        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
         return res.status(201).json({ message: 'Usuario creada con éxito', name, age, gender, email, country_id, university_id, token });
       });
     });
@@ -146,7 +146,7 @@ router.post('/login', function(req, res, next) {
           console.error('Incorrect password');
           return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
-        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
         console.error('Authentication successful');
         return res.status(200).json({ message: 'Autenticación exitosa', token });
       });

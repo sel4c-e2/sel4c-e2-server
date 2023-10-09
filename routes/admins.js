@@ -1,7 +1,7 @@
 var express = require('express');
 const bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
-var connection = require('../db');
+var { connection } = require('../db');
 var router = express.Router();
 
 // Get all admins
@@ -39,7 +39,7 @@ router.get('/admin', function(req, res, next) {
     if (!token) {
       return res.status(401).json({ message: 'No autorizado' });
     }
-    jwt.verify(token.replace('Bearer ', ''), 'SECRET', function(tokenErr, decoded) {
+    jwt.verify(token.replace('Bearer ', ''), process.env.JWT_KEY, function(tokenErr, decoded) {
       if (tokenErr) {
         console.log("Error: ", tokenErr);
         return res.status(401).json({ message: 'Token no valido' });
@@ -92,7 +92,7 @@ router.post('/login', function(req, res, next) {
           console.error('Incorrect password');
           return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
-        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
         console.error('Authentication successful');
         return res.status(200).json({ message: 'Autenticación exitosa', token });
       });
@@ -125,7 +125,7 @@ router.post('/', function(req, res, next) {
           return res.status(500).json({ message: 'Error interno del servidor' });
         }
         console.log('Admin created successfully');
-        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
         return res.status(201).json({ message: 'Usuario creada con éxito', name, lastname, email, token });
       });
     });
