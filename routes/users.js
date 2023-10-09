@@ -150,9 +150,9 @@ router.post('/', function(req, res, next) {
 // Login user
 router.post('/login', function(req, res, next) {
   try {
-    const { email, password } = req.body;
-
     console.log(`--POST: /users/login--`);
+    
+    const { email, password } = req.body;
 
     const query = 'SELECT * FROM users WHERE email = ?';
 

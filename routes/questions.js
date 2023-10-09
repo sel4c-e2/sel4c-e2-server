@@ -81,7 +81,34 @@ router.post('/answers', function(req, res, next) {
         const { userId, questionId, answer } = req.body;
         console.log(`--POST: /questions/results--`);
 
+        const checkQuery = 'SELECT * FROM questions_answers WHERE user_id = ? AND question_id = ?';
 
+        connection.query(checkQuery, [userId, questionId], (checkError, checkResults, checkFields) => {
+            if (checkError) {
+                console.error('Error querying the database:', checkError);
+                return res.status(500).json({ message: 'Error interno del servidor' });
+            }
+            if (checkResults.length === 0) {
+                const addQuery = 'INSERT INTO questions_answers (user_id, question_id, answer) VALUES (?, ?, ?)';
+                connection.query(addQuery, [userId, questionId, answer], (addError, addResults, addFields) => {
+                    if (addError) {
+                        console.error('Error querying the database:', addError);
+                        return res.status(500).json({ message: 'Error interno del servidor' });
+                    }
+                    console.log("Answered registered successfully");
+                    return res.status(201).json({ message: "Respuesta registrada con exito", questionId, answer });
+                });
+            }
+            const alterQuery = 'UPDATE questions_answers SET answer = ? WHERE user_id = ? AND question_id = ?';
+            connection.query(alterQuery, [answer, userId, questionId], (alterError, alterResults, alterFields) => {
+                if (alterError) {
+                    console.error('Error querying the database:', alterError);
+                    return res.status(500).json({ message: 'Error interno del servidor' });
+                }
+                console.log("Answered changed successfully");
+                return res.status(200).json({ message: "Respuesta cambiada con exito", questionId, answer });
+            });
+        });
     } catch (tcError) {
         console.error('Error:', tcErr);
         return res.status(500).json({ message: 'Error interno del servidor' });
