@@ -186,41 +186,8 @@ router.get('/:id', function(req, res, next) {
   }
 });
 
-// Update a specific user by user_id
-router.put('/:id', function(req, res, next) {
-  try {
-    const userId = req.params.id;
-    const updates = req.body;
-
-    console.log(`--PUT: /users/${userId}--`);
-    if (updates.hasOwnProperty('password')) {
-      console.log('Password cannot be updated throught this endpoint');
-        return res.status(502).json({ message: 'No se puede actualizar el usuario' });
-    }
-
-    const query = 'UPDATE users SET ? WHERE user_id = ?';
-
-    connection.query(query, [updates, userId], function (error, results, fields) {
-      if (error) {
-        console.error('Error updating user:', error);
-        return res.status(500).json({ message: 'Error interno del servidor' });
-      }
-
-      if (results.affectedRows === 0) {
-        console.error('User not found');
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-      console.error(`User ${userId} updated successfully`);
-      return res.status(200).json({ message: `Usuario ${userId} actualizado exitosamente` });
-    });
-  } catch (tcErr) {
-    console.error('Error:', tcErr);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
 // Update password for a specific user by user_id
-router.put('/:id/password', function(req, res, next) {
+router.put('/passwod/:id', function(req, res, next) {
   try {
     const userId = req.params.id;
     const { currentPassword, newPassword } = req.body;
@@ -272,6 +239,39 @@ router.put('/:id/password', function(req, res, next) {
           });
         });
       });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Update a specific user by user_id
+router.put('/:id', function(req, res, next) {
+  try {
+    const userId = req.params.id;
+    const updates = req.body;
+
+    console.log(`--PUT: /users/${userId}--`);
+    if (updates.hasOwnProperty('password')) {
+      console.log('Password cannot be updated throught this endpoint');
+        return res.status(502).json({ message: 'No se puede actualizar el usuario' });
+    }
+
+    const query = 'UPDATE users SET ? WHERE user_id = ?';
+
+    connection.query(query, [updates, userId], function (error, results, fields) {
+      if (error) {
+        console.error('Error updating user:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+
+      if (results.affectedRows === 0) {
+        console.error('User not found');
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+      console.error(`User ${userId} updated successfully`);
+      return res.status(200).json({ message: `Usuario ${userId} actualizado exitosamente` });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
