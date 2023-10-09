@@ -162,41 +162,8 @@ router.get('/:id', function(req, res, next) {
   }
 });
 
-// Update a specific admin by admin_id
-router.put('/:id', function(req, res, next) {
-  try {
-    const adminId = req.params.id;
-    const updates = req.body;
-
-    console.log(`--PUT: /admins/${adminId}--`);
-    if (updates.hasOwnProperty('password')) {
-      console.log('Password cannot be updated throught this endpoint');
-        return res.status(502).json({ message: 'No se puede actualizar el administrador' });
-    }
-
-    const query = 'UPDATE admins SET ? WHERE admin_id = ?';
-
-    connection.query(query, [updates, adminId], function (error, results, fields) {
-      if (error) {
-        console.error('Error updating admin:', error);
-        return res.status(500).json({ message: 'Error interno del servidor' });
-      }
-
-      if (results.affectedRows === 0) {
-        console.error('Admin not found');
-        return res.status(404).json({ message: 'Administrador no encontrado' });
-      }
-      console.error(`Admin ${adminId} updated successfully`);
-      return res.status(200).json({ message: `Administrador ${adminId} actualizado exitosamente` });
-    });
-  } catch (tcErr) {
-    console.error('Error:', tcErr);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
 // Update password for a specific admin by admin_id
-router.put('/:id/password', function(req, res, next) {
+router.put('/password/:id', function(req, res, next) {
   try {
     const adminId = req.params.id;
     const { currentPassword, newPassword } = req.body;
@@ -248,6 +215,39 @@ router.put('/:id/password', function(req, res, next) {
           });
         });
       });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Update a specific admin by admin_id
+router.put('/:id', function(req, res, next) {
+  try {
+    const adminId = req.params.id;
+    const updates = req.body;
+
+    console.log(`--PUT: /admins/${adminId}--`);
+    if (updates.hasOwnProperty('password')) {
+      console.log('Password cannot be updated throught this endpoint');
+        return res.status(502).json({ message: 'No se puede actualizar el administrador' });
+    }
+
+    const query = 'UPDATE admins SET ? WHERE admin_id = ?';
+
+    connection.query(query, [updates, adminId], function (error, results, fields) {
+      if (error) {
+        console.error('Error updating admin:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+
+      if (results.affectedRows === 0) {
+        console.error('Admin not found');
+        return res.status(404).json({ message: 'Administrador no encontrado' });
+      }
+      console.error(`Admin ${adminId} updated successfully`);
+      return res.status(200).json({ message: `Administrador ${adminId} actualizado exitosamente` });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
