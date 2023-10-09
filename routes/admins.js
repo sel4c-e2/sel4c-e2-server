@@ -65,6 +65,44 @@ router.get('/admin', function(req, res, next) {
   }
 });
 
+router.post('/login', function(req, res, next) {
+  try {
+    const { email, password } = req.body;
+
+    console.log(`--POST: /admins/login--`);
+
+    const query = 'SELECT password FROM admins WHERE email = ?';
+
+    connection.query(query, [email], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (results.length === 0) {
+        console.log('Admin not found');
+        return res.status(404).json({ message: 'Administrador no encontrado' });
+      }
+      const hashedPassword = results[0].password;
+      bcrypt.compare(password, hashedPassword, function(err, result) {
+        if (err) {
+          console.error('Error comparing passwords:', err);
+          return res.status(500).json({ message: 'Error interno del servidor' });
+        }
+        if (!result) {
+          console.error('Incorrect password');
+          return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        console.error('Authentication successful');
+        return res.status(200).json({ message: 'Autenticación exitosa', token });
+      });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Register admin
 router.post('/', function(req, res, next) {
   try {
@@ -239,44 +277,6 @@ router.delete('/:id', function(req, res, next) {
 
       console.error(`Admin ${adminId} deleted successfully`);
       return res.status(200).json({ message: `Administrador ${adminId} eliminado exitosamente` });
-    });
-  } catch (tcErr) {
-    console.error('Error:', tcErr);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-router.post('/login', function(req, res, next) {
-  try {
-    const { email, password } = req.body;
-
-    console.log(`--POST: /admins/login--`);
-
-    const query = 'SELECT password FROM admins WHERE email = ?';
-
-    connection.query(query, [email], function (error, results, fields) {
-      if (error) {
-        console.error('Error querying the database:', error);
-        return res.status(500).json({ message: 'Error interno del servidor' });
-      }
-      if (results.length === 0) {
-        console.log('Admin not found');
-        return res.status(404).json({ message: 'Administrador no encontrado' });
-      }
-      const hashedPassword = results[0].password;
-      bcrypt.compare(password, hashedPassword, function(err, result) {
-        if (err) {
-          console.error('Error comparing passwords:', err);
-          return res.status(500).json({ message: 'Error interno del servidor' });
-        }
-        if (!result) {
-          console.error('Incorrect password');
-          return res.status(401).json({ message: 'Contraseña incorrecta' });
-        }
-        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
-        console.error('Authentication successful');
-        return res.status(200).json({ message: 'Autenticación exitosa', token });
-      });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);

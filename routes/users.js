@@ -51,63 +51,110 @@ router.get('/', function(req, res, next) {
   }
 });
 
-// Register user
-// Register user
-router.post('/', async function(req, res, next) {
-  console.log(req.body)
-  const { name, university, age, email, password, gender, country_id } = req.body;
-  // Input validation
-  /*
-  if (!name || !email || !password || !gender || !country_id || !university || !age) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-
-  */
-
-  console.log("--POST: /users--");
-
-  // Password hashing
+// Get a specific user by token
+router.get('/user', function(req, res, next) {
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword)
-    const query = 'INSERT INTO users (name, university, age, email, password, gender, country_id) VALUES (?, ?, ?, ?, ?, ?,?)';
-    const values = [name, university, age, email, password, gender, country_id];
+    const token = req.headers.authorization;
 
-    connection.query(query, values, function (error, results, fields) {
-      if (error) {
-        console.log("Error")
-        console.error('Error creating new user:', error.stack);
-        return res.status(500).json({ message: 'Internal Server Error' });
+    console.log(`--GET: /users/user--`);
+
+    if (!token) {
+      return res.status(401).json({ message: 'No autorizado' });
+    }
+    jwt.verify(token.replace('Bearer ', ''), 'SECRET', function(tokenErr, decoded) {
+      if (tokenErr) {
+        console.log("Error: ", tokenErr);
+        return res.status(401).json({ message: 'Token no valido' });
       }
-      console.log('User created successfully');
-      return res.status(201).json({ message: 'User created successfully' });
+      const email = decoded.email;
+      const query = 'SELECT * FROM users WHERE email = ?';
+      connection.query(query, [email], function (error, results, fields) {
+        if (error) {
+          console.error('Error querying the database:', error);
+          return res.status(500).json({ message: 'Error interno del servidor' });
+        }
+        if (results.length === 0) {
+          console.log('User not found');
+          return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        console.log(`User ${email} found`);
+        return res.status(200).json({ message: `Usuario ${email} encontrado`, ...results[0] });
+      });
     });
-    
-  } catch (hashError) {
-    console.error('Error hashing password:', hashError.stack);
-    return res.status(500).json({ message: 'Internal Server Error' });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
-// Get a specific user by user_id
-router.get('/:id', function(req, res, next) {
-  const userId = req.params.id;
-  
-  console.log(`--GET: /users/${userId}--`);
 
-  const query = 'SELECT * FROM users WHERE user_id = ? LIMIT 1';
+// Register user
+router.post('/', function(req, res, next) {
+  try {
+    const { name, age, gender, email, country_id, university_id, password } = req.body;
 
-  connection.query(query, [userId], function (error, results, fields) {
-    if (error) {
-      console.error('Error querying the database:', error);
-      return res.status(500).json({ message: 'Internal Server Error', ...results[0] });
-    }
-    if (results.length === 0) {
-      console.log('User not found');
-      return res.status(404).json({ message: 'User not found', ...results[0] });
-    }
-    console.log(`User ${userId} found`);
-    return res.status(200).json({ message: `User ${userId} found`, ...results[0] });
-  });
+    console.log("--POST: /users--");
+
+    bcrypt.hash(password, 10, function(err, hash) {
+      if (err) {
+        console.error('Error hashing password:', err);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+
+      const query = 'INSERT INTO users (name, age, gender, email, country_id, university_id, password) VALUES (?, ?, ?, ?, ?, ?,?, ?)';
+      const values = [name, age, gender, email, country_id, university_id, hash];
+
+      connection.query(query, values, function (error, results, fields) {
+        if (error) {
+          console.error('Error creating new user:', error);
+          return res.status(500).json({ message: 'Error interno del servidor' });
+        }
+        console.log('User created successfully');
+        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        return res.status(201).json({ message: 'Usuario creada con éxito', name, age, gender, email, country_id, university_id, token });
+      });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+router.post('/login', function(req, res, next) {
+  try {
+    const { email, password } = req.body;
+
+    console.log(`--POST: /users/login--`);
+
+    const query = 'SELECT password FROM users WHERE email = ?';
+
+    connection.query(query, [email], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (results.length === 0) {
+        console.log('User not found');
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+      const hashedPassword = results[0].password;
+      bcrypt.compare(password, hashedPassword, function(err, result) {
+        if (err) {
+          console.error('Error comparing passwords:', err);
+          return res.status(500).json({ message: 'Error interno del servidor' });
+        }
+        if (!result) {
+          console.error('Incorrect password');
+          return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
+        console.error('Authentication successful');
+        return res.status(200).json({ message: 'Autenticación exitosa', token });
+      });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
 });
 
 // Get a specific user by user_id
@@ -130,33 +177,6 @@ router.get('/:id', function(req, res, next) {
       }
       console.log(`User ${userId} found`);
       return res.status(200).json({ message: `Usuario ${userId} encontrado`, ...results[0] });
-    });
-  } catch (tcErr) {
-    console.error('Error:', tcErr);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-// Get a specific user by email
-router.get('/:email', function(req, res, next) {
-  try {
-    const email = req.params.email;
-  
-    console.log(`--GET: /users/${email}--`);
-
-    const query = 'SELECT * FROM users WHERE email = ?';
-
-    connection.query(query, [email], function (error, results, fields) {
-      if (error) {
-        console.error('Error querying the database:', error);
-        return res.status(500).json({ message: 'Error interno del servidor' });
-      }
-      if (results.length === 0) {
-        console.log('User not found');
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-      console.log(`User ${email} found`);
-      return res.status(200).json({ message: `Usuario ${email} encontrado`, ...results[0] });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
@@ -279,44 +299,6 @@ router.delete('/:id', function(req, res, next) {
 
       console.error(`User ${userId} deleted successfully`);
       return res.status(200).json({ message: `Usuario ${userId} eliminado exitosamente` });
-    });
-  } catch (tcErr) {
-    console.error('Error:', tcErr);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-router.post('/login', function(req, res, next) {
-  try {
-    const { email, password } = req.body;
-
-    console.log(`--POST: /users/login--`);
-
-    const query = 'SELECT password FROM users WHERE email = ?';
-
-    connection.query(query, [email], function (error, results, fields) {
-      if (error) {
-        console.error('Error querying the database:', error);
-        return res.status(500).json({ message: 'Error interno del servidor' });
-      }
-      if (results.length === 0) {
-        console.log('User not found');
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-      const hashedPassword = results[0].password;
-      bcrypt.compare(password, hashedPassword, function(err, result) {
-        if (err) {
-          console.error('Error comparing passwords:', err);
-          return res.status(500).json({ message: 'Error interno del servidor' });
-        }
-        if (!result) {
-          console.error('Incorrect password');
-          return res.status(401).json({ message: 'Contraseña incorrecta' });
-        }
-        const token = jwt.sign({ email }, "SECRET", { expiresIn: '1h' });
-        console.error('Authentication successful');
-        return res.status(200).json({ message: 'Autenticación exitosa', token });
-      });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
