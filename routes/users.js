@@ -87,6 +87,33 @@ router.get('/user', function(req, res, next) {
   }
 });
 
+// Get a specific user by user_id
+router.get('/:id', function(req, res, next) {
+  try {
+    const userId = req.params.id;
+  
+    console.log(`--GET: /users/${userId}--`);
+
+    const query = 'SELECT * FROM users WHERE user_id = ?';
+
+    connection.query(query, [userId], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (results.length === 0) {
+        console.log('User not found');
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+      console.log(`User ${userId} found`);
+      return res.status(200).json({ message: `Usuario ${userId} encontrado`, ...results[0] });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Register user
 router.post('/', function(req, res, next) {
   try {
@@ -120,6 +147,7 @@ router.post('/', function(req, res, next) {
   }
 });
 
+// Login user
 router.post('/login', function(req, res, next) {
   try {
     const { email, password } = req.body;
@@ -152,33 +180,6 @@ router.post('/login', function(req, res, next) {
         console.error('Authentication successful');
         return res.status(200).json({ message: 'Autenticación exitosa', token, ...user});
       });
-    });
-  } catch (tcErr) {
-    console.error('Error:', tcErr);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-});
-
-// Get a specific user by user_id
-router.get('/:id', function(req, res, next) {
-  try {
-    const userId = req.params.id;
-  
-    console.log(`--GET: /users/${userId}--`);
-
-    const query = 'SELECT * FROM users WHERE user_id = ?';
-
-    connection.query(query, [userId], function (error, results, fields) {
-      if (error) {
-        console.error('Error querying the database:', error);
-        return res.status(500).json({ message: 'Error interno del servidor' });
-      }
-      if (results.length === 0) {
-        console.log('User not found');
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
-      console.log(`User ${userId} found`);
-      return res.status(200).json({ message: `Usuario ${userId} encontrado`, ...results[0] });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
