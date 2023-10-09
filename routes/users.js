@@ -31,7 +31,7 @@ router.get('/', function(req, res, next) {
   try {
     console.log("--GET: /users--");
 
-    const query = 'SELECT * FROM users';
+    const query = ` SELECT users.*, countries.name as country_name, universities.name as university_name FROM users LEFT JOIN countries ON users.country_id = countries.id LEFT JOIN universities ON users.university_id = universities.id`;
   
     connection.query(query, function (error, results, fields) {
       if (error) {
@@ -151,7 +151,7 @@ router.post('/', function(req, res, next) {
 router.post('/login', function(req, res, next) {
   try {
     console.log(`--POST: /users/login--`);
-    
+
     const { email, password } = req.body;
 
     const query = 'SELECT * FROM users WHERE email = ?';
