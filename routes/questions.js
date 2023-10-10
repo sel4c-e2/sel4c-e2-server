@@ -50,6 +50,32 @@ router.get('/type/:type', function(req, res, next) {
     }
 });
 
+router.get('/display/:display', function(req, res, next) {
+    try {
+        const display = req.params.display;
+
+        console.log(`--GET: /questions/display/${display}--`);
+
+        const query = 'SELECT * FROM questions WHERE display = ?';
+
+        connection.query(query, [display], (error, results, fields) => {
+            if (error) {
+                console.error('Error querying the database:', error);
+                return res.status(500).json({ message: 'Error interno del servidor' });
+            }
+            if (results.length === 0) {
+                console.log(`Questions with display: "${display}" not found`);
+                return res.status(404).json({ message: `No hay preguntas con el display: "${display}"` });
+            }
+            console.log(`${results.length} questions with display "${display}" found`);
+            return res.status(200).json({ message: `${results.length} preguntas con display "${display}" encontradas`, questions: results });
+        });
+    } catch (tcErr) {
+        console.error('Error:', tcErr);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});
+
 router.get('/answers/userId/:userId', function(req, res, next) {
     try {
         const userId = req.params.userId;
