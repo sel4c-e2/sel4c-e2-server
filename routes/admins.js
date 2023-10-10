@@ -129,8 +129,8 @@ router.post('/', function(req, res, next) {
           return res.status(500).json({ message: 'Error interno del servidor' });
         }
         console.log('Admin created successfully');
-        const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
-        return res.status(201).json({ message: 'Usuario creada con éxito', name, lastname, email, token });
+        // const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
+        return res.status(201).json({ message: 'Usuario creada con éxito' });
       });
     });
   } catch (tcErr) {
