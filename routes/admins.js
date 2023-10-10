@@ -71,7 +71,7 @@ router.post('/login', function(req, res, next) {
 
     console.log(`--POST: /admins/login--`);
 
-    const query = 'SELECT password FROM admins WHERE email = ?';
+    const query = 'SELECT password, access FROM admins WHERE email = ?';
 
     connection.query(query, [email], function (error, results, fields) {
       if (error) {
@@ -81,6 +81,10 @@ router.post('/login', function(req, res, next) {
       if (results.length === 0) {
         console.log('Admin not found');
         return res.status(404).json({ message: 'Administrador no encontrado' });
+      }
+      if (!results[0].access) {
+        console.log('This user does not have access to the platform');
+        return res.status(403).json({ message: 'Usuario sin acceso' });
       }
       const hashedPassword = results[0].password;
       bcrypt.compare(password, hashedPassword, function(err, result) {
