@@ -36,7 +36,6 @@ router.post('/upload', upload.single('file'), (req, res) => {
   });
 
 
-
   router.get('/download/:user_id/:activity_id', (req, res) => {
     const { user_id, activity_id } = req.params;
     
@@ -53,9 +52,10 @@ router.post('/upload', upload.single('file'), (req, res) => {
         return res.status(404).json({ message: 'Archivo no encontrado' });
       }
       
-      const filePath = path.resolve(__dirname, results[0].file_path);
+      // Adjust the file path resolution here to match the upload destination
+      const filePath = path.resolve(__dirname, '..', results[0].file_path);
       res.sendFile(filePath);
     });
-  });
+});
 
 module.exports = router;
