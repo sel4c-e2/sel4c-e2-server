@@ -10,7 +10,7 @@ const adminsRouter = require('./routes/admins');
 const questionsRouter = require('./routes/questions');
 const countriesRouter = require('./routes/countries');
 const universitiesRouter = require('./routes/universities');
-
+const fileshandling = require('./routes/activities')
 app.use(express.json());
 app.use(cors({
   origin: true,
@@ -25,7 +25,7 @@ app.use('/admins', adminsRouter);
 app.use('/questions', questionsRouter);
 app.use('/countries', countriesRouter);
 app.use('/universities', universitiesRouter);
-
+app.use('/activities',fileshandling)
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
 });
