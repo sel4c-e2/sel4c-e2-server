@@ -21,7 +21,7 @@ router.get('/', function(req, res, next) {
         return res.status(404).json({ message: 'No se encontraron administradores' });
       }
       console.log(`Found ${results.length} admins`);
-      return res.status(200).json({ message: `Se encontraron ${results.length} administradores`, ...results });
+      return res.status(200).json({ message: `Se encontraron ${results.length} administradores`, admins: results });
     });
   } catch (tcErr) {
     console.error('Error:', tcErr);
