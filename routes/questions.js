@@ -16,7 +16,8 @@ router.get('/', function(req, res, next) {
                 return res.status(404).json({ message: `No se encontraron preguntas` });
             }
             console.log(`${results.length} questions found`);
-            return res.status(200).json({ message: `${results.length} preguntas encontradas`, questions: results });
+            // return res.status(200).json({ message: `${results.length} preguntas encontradas`, questions: results });
+            return res.status(200).json({ questions: results });
         });
     } catch (tcErr) {
         console.error('Error:', tcErr);
