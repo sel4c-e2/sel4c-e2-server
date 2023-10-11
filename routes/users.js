@@ -154,7 +154,7 @@ router.post('/login', function(req, res, next) {
 
     const { email, password } = req.body;
 
-    const query = 'SELECT users.*, countries.name as country_name, universities.name as university_name FROM users WHERE email = ? LEFT JOIN countries ON users.country_id = countries.country_id LEFT JOIN universities ON users.university_id = universities.university_id';
+    const query = 'SELECT users.*, countries.name as country_name, universities.name as university_name FROM users LEFT JOIN countries ON users.country_id = countries.country_id LEFT JOIN universities ON users.university_id = universities.university_id WHERE email = ?';
 
     connection.query(query, [email], function (error, results, fields) {
       if (error) {
