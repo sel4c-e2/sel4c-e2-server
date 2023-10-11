@@ -6,7 +6,7 @@ router.get('/', function(req, res, next) {
     try {
         console.log("--GET: /universities--");
 
-        connection.query('SELECT * FROM universites', (error, results, fields) => {
+        connection.query('SELECT * FROM universities', (error, results, fields) => {
             if (error) {
                 console.error('Error querying the database:', error);
                 return res.status(500).json({ message: 'Error interno del servidor' });
