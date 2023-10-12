@@ -77,15 +77,15 @@ router.get('/display/:display', function(req, res, next) {
     }
 });
 
-router.get('/answers/userId/:userId', function(req, res, next) {
+router.get('/answers/user-id/:userId', function(req, res, next) {
     try {
         const userId = req.params.userId;
 
-        console.log(`--GET: /questions/answers/userId/${userId}--`);
+        console.log(`--GET: /questions/answers/user-id/${userId}--`);
 
-        const query = 'SELECT * FROM questions WHERE user_id = ?';
+        const query = 'SELECT * FROM questions_answers WHERE user_id = ?';
 
-        connection.query(query, [type], (error, results, fields) => {
+        connection.query(query, [userId], (error, results, fields) => {
             if (error) {
                 console.error('Error querying the database:', error);
                 return res.status(500).json({ message: 'Error interno del servidor' });
@@ -95,7 +95,7 @@ router.get('/answers/userId/:userId', function(req, res, next) {
                 return res.status(404).json({ message: `Este alumno no ha contestado ninguna pregunta` });
             }
             console.log(`User ${userId} has answered ${results.length} questions`);
-            return res.status(200).json({ message: `El usuario ${userId} ha contestado ${results.length} preguntas`, data: results });
+            return res.status(200).json({ message: `El usuario ${userId} ha contestado ${results.length} preguntas`, answers: results });
         });
     } catch (tcErr) {
         console.error('Error:', tcErr);
