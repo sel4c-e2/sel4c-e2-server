@@ -84,25 +84,32 @@ router.post('/upload', upload.single('file'), (req, res) => {
 });
 
 router.get('/download/:user_id/:activity_id', (req, res) => {
-  const { user_id, activity_id } = req.params;
+  try {
+    const { user_id, activity_id } = req.params;
     
-  const query = 'SELECT file_path FROM files WHERE user_id = ? AND activity_id = ? ORDER BY upload_timestamp DESC LIMIT 1';
-  
-  connection.query(query, [user_id, activity_id], (error, results, fields) => {
-    if (error) {
-      console.error('Error querying the database:', error);
-      return res.status(500).json({ message: 'Error interno del servidor' });
-    }
+    console.log(`--GET: /download/${user_id}/${activity_id}--`);
+
+    const query = 'SELECT file_path FROM files WHERE user_id = ? AND activity_id = ? ORDER BY upload_timestamp DESC LIMIT 1';
     
-    if (results.length === 0) {
-      console.log('File not found');
-      return res.status(404).json({ message: 'Archivo no encontrado' });
-    }
-    
-    // Adjust the file path resolution here to match the upload destination
-    const filePath = path.resolve(__dirname, '..', results[0].file_path);
-    res.sendFile(filePath);
-  });
+    connection.query(query, [user_id, activity_id], (error, results, fields) => {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      
+      if (results.length === 0) {
+        console.log('File not found');
+        return res.status(404).json({ message: 'Archivo no encontrado' });
+      }
+      
+      // Adjust the file path resolution here to match the upload destination
+      const filePath = path.resolve(__dirname, '..', results[0].file_path);
+      return res.status(200).sendFile(filePath);
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
 });
 
 module.exports = router;
