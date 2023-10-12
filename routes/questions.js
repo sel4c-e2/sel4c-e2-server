@@ -122,7 +122,7 @@ router.post('/answers', function(req, res, next) {
                         console.error('Error querying the database:', addError);
                         return res.status(500).json({ message: 'Error interno del servidor' });
                     }
-                    console.log("Answered registered successfully");
+                    console.log(`Answered registered successfully for user: "${userId}" in question: "${questionId}" to answer: "${answer}"`);
                     return res.status(201).json({ message: "Respuesta registrada con exito", questionId, answer });
                 });
             } else {
@@ -132,7 +132,7 @@ router.post('/answers', function(req, res, next) {
                         console.error('Error querying the database:', alterError);
                         return res.status(500).json({ message: 'Error interno del servidor' });
                     }
-                    console.log("Answered changed successfully");
+                    console.log(`Answered changed successfully for user: "${userId}" in question: "${questionId}" to answer: "${answer}"`);
                     return res.status(200).json({ message: "Respuesta cambiada con exito", questionId, answer });
                 });
             }
