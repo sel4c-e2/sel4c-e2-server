@@ -125,19 +125,20 @@ router.post('/answers', function(req, res, next) {
                     console.log("Answered registered successfully");
                     return res.status(201).json({ message: "Respuesta registrada con exito", questionId, answer });
                 });
+            } else {
+                const alterQuery = 'UPDATE questions_answers SET answer = ? WHERE user_id = ? AND question_id = ?';
+                connection.query(alterQuery, [answer, userId, questionId], (alterError, alterResults, alterFields) => {
+                    if (alterError) {
+                        console.error('Error querying the database:', alterError);
+                        return res.status(500).json({ message: 'Error interno del servidor' });
+                    }
+                    console.log("Answered changed successfully");
+                    return res.status(200).json({ message: "Respuesta cambiada con exito", questionId, answer });
+                });
             }
-            const alterQuery = 'UPDATE questions_answers SET answer = ? WHERE user_id = ? AND question_id = ?';
-            connection.query(alterQuery, [answer, userId, questionId], (alterError, alterResults, alterFields) => {
-                if (alterError) {
-                    console.error('Error querying the database:', alterError);
-                    return res.status(500).json({ message: 'Error interno del servidor' });
-                }
-                console.log("Answered changed successfully");
-                return res.status(200).json({ message: "Respuesta cambiada con exito", questionId, answer });
-            });
         });
-    } catch (tcError) {
-        console.error('Error:', tcError);
+    } catch (tcErr) {
+        console.error('Error:', tcErr);
         return res.status(500).json({ message: 'Error interno del servidor' });
     }
 });

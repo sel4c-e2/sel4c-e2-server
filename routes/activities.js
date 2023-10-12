@@ -33,12 +33,35 @@ router.get('/', function(req, res, next) {
       return res.status(200).json({ activities: queryResults });
     });
 
-  } catch (tcError) {
+  } catch (tcErr) {
     console.error('Error:', tcErr);
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
 
+// router.get('/:id', function(req, res, next) {
+//   try {
+//     console.log(`--GET: /activities--`);
+//     const query = 'SELECT * FROM activities';
+//     connection.query(query, (queryError, queryResults, queryFields) => {
+//       if (queryError) {
+//         console.error('Error querying the database:', queryError);
+//         return res.status(500).json({ message: 'Error interno del servidor' });
+//       }
+//       if (queryResults.length === 0) {
+//         console.log(`No activities found`);
+//         return res.status(404).json({ message: `No se encontraron actividades` });
+//       }
+//       console.log(`${queryResults.length} activities found`);
+//       // return res.status(200).json({ message: `${queryResults.length} actividades encontradas`, activities: queryResults });
+//       return res.status(200).json({ activities: queryResults });
+//     });
+
+//   } catch (tcErr) {
+//     console.error('Error:', tcErr);
+//     return res.status(500).json({ message: 'Error interno del servidor' });
+//   }
+// });
 
 router.post('/upload', upload.single('file'), (req, res) => {
   const { user_id, activity_id } = req.body;

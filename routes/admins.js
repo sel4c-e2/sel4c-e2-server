@@ -96,7 +96,7 @@ router.post('/login', function(req, res, next) {
           console.error('Incorrect password');
           return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
-        const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '1h' });
+        const token = jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: '2h' });
         console.error('Authentication successful');
         return res.status(200).json({ message: 'Autenticación exitosa', token });
       });
