@@ -137,7 +137,7 @@ router.post('/answers', function(req, res, next) {
             });
         });
     } catch (tcError) {
-        console.error('Error:', tcErr);
+        console.error('Error:', tcError);
         return res.status(500).json({ message: 'Error interno del servidor' });
     }
 });
