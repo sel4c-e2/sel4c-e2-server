@@ -29,6 +29,28 @@ router.get('/', function(req, res, next) {
   }
 });
 
+// Get count of users
+router.get('/count', function(req, res, next) {
+  try {
+    console.log("--GET: /users/count--");
+
+    const query = `SELECT COUNT(*) AS count FROM users`;
+  
+    connection.query(query, function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      const userCount = results[0].count;
+      console.log(`Found ${userCount} users`);
+      return res.status(200).json({ message: `Se encontraron ${userCount} usuarios`, count: userCount });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Get a specific user by token
 router.get('/user', function(req, res, next) {
   try {

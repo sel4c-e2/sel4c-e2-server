@@ -39,6 +39,28 @@ router.get('/', function(req, res, next) {
   }
 });
 
+// Get count of admins
+router.get('/count', function(req, res, next) {
+  try {
+    console.log("--GET: /activities/count--");
+
+    const query = `SELECT COUNT(*) AS count FROM activities`;
+  
+    connection.query(query, function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      const activitiesCount = results[0].count;
+      console.log(`Found ${activitiesCount} activities`);
+      return res.status(200).json({ message: `Se encontraron ${activitiesCount} actividades`, count: activitiesCount });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 router.get('/:id', function(req, res, next) {
   try {
     const activityId = req.params.id;

@@ -29,6 +29,28 @@ router.get('/', function(req, res, next) {
   }
 });
 
+// Get count of admins
+router.get('/count', function(req, res, next) {
+  try {
+    console.log("--GET: /admins/count--");
+
+    const query = `SELECT COUNT(*) AS count FROM admins`;
+  
+    connection.query(query, function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      const adminCount = results[0].count;
+      console.log(`Found ${adminCount} admins`);
+      return res.status(200).json({ message: `Se encontraron ${adminCount} administradores`, count: adminCount });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Get a specific admin with token
 router.get('/admin', function(req, res, next) {
   try {
