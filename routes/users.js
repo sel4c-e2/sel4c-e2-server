@@ -87,6 +87,56 @@ router.get('/user', function(req, res, next) {
   }
 });
 
+// Get if the user has completed the starting quiz
+router.get('/start-quiz/:id', function(req, res, next) {
+  try {
+    const userId = req.params.id;
+  
+    console.log(`--GET: /users/start-quiz/${userId}--`);
+
+    const query = "SELECT COUNT(qa.id) AS count FROM questions q JOIN questions_answers qa ON q.id = qa.question_id WHERE qa.user_id = ? AND q.display = 'start'";
+
+    connection.query(query, [userId], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      const count = results[0].count;
+      const done = count >= 50;
+      console.log(`User ${userId} has answered ${count} questions of the starting quiz`);
+      return res.status(200).json({ message: `El usuario ${userId} ha contestado ${count} preguntas del cuestionario inicial`, ...results[0], done: done });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Get if the user has completed the starting quiz
+router.get('/end-quiz/:id', function(req, res, next) {
+  try {
+    const userId = req.params.id;
+  
+    console.log(`--GET: /users/end-quiz/${userId}--`);
+
+    const query = "SELECT COUNT(qa.id) AS count FROM questions q JOIN questions_answers qa ON q.id = qa.question_id WHERE qa.user_id = ? AND q.display = 'end'";
+
+    connection.query(query, [userId], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      const count = results[0].count;
+      const done = count >= 50;
+      console.log(`User ${userId} has answered ${count} questions of the ending quiz`);
+      return res.status(200).json({ message: `El usuario ${userId} ha contestado ${count} preguntas del cuestionario final`, ...results[0], done: done });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 // Get a specific user by user_id
 router.get('/:id', function(req, res, next) {
   try {
@@ -188,7 +238,7 @@ router.post('/login', function(req, res, next) {
 });
 
 // Update password for a specific user by user_id
-router.put('/passwod/:id', function(req, res, next) {
+router.put('/password/:id', function(req, res, next) {
   try {
     const userId = req.params.id;
     const { currentPassword, newPassword } = req.body;
