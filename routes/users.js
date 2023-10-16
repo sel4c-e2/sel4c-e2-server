@@ -4,28 +4,6 @@ var jwt = require('jsonwebtoken');
 var { connection } = require('../db');
 var router = express.Router();
 
-// const users = [ //con base de datos
-//   {username:'fernandogar', password:'holahola'},
-// ];
-
-// router.post('/prueba', (req, res) => {
-//   const username = req.body.username
-//   const password = req.body.password
-
-//   const authUser = users.find(user => user.username == username && user.password == password) //con base de datos
-//   if(authUser) {
-//     const token =jwt.sign({username:username},process.env.JWT_KEY)
-//     if(token) {
-//       res.json({token: token})
-//     } else {
-//       res.json({message: "Authentication failed", success: false})
-//     }
-//   } else {
-//     res.json({message: "Authentication failed", success:false})
-//   }
-
-// });
-
 // Get all users
 router.get('/', function(req, res, next) {
   try {
@@ -102,7 +80,7 @@ router.get('/start-quiz/:id', function(req, res, next) {
         return res.status(500).json({ message: 'Error interno del servidor' });
       }
       const count = results[0].count;
-      const done = count >= 50;
+      const done = count >= 50 ? 1 : 0;
       console.log(`User ${userId} has answered ${count} questions of the starting quiz`);
       return res.status(200).json({ message: `El usuario ${userId} ha contestado ${count} preguntas del cuestionario inicial`, ...results[0], done: done });
     });
@@ -127,7 +105,7 @@ router.get('/end-quiz/:id', function(req, res, next) {
         return res.status(500).json({ message: 'Error interno del servidor' });
       }
       const count = results[0].count;
-      const done = count >= 50;
+      const done = count >= 50 ? 1 : 0;
       console.log(`User ${userId} has answered ${count} questions of the ending quiz`);
       return res.status(200).json({ message: `El usuario ${userId} ha contestado ${count} preguntas del cuestionario final`, ...results[0], done: done });
     });
