@@ -39,7 +39,30 @@ router.get('/', function(req, res, next) {
   }
 });
 
-// Get count of admins
+// Get count of activities
+router.get('/count/answers/:activityId', function(req, res, next) {
+  try {
+    const activityId = req.params.activityId;
+    console.log(`--GET: /activities/count/answers/${activityId}--`);
+
+    const query = `SELECT COUNT(*) AS count FROM activities_answers WHERE activity_id = ?`;
+  
+    connection.query(query, [activityId], function (error, results, fields) {
+      if (error) {
+        console.error('Error querying the database:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      const answersCount = results[0].count;
+      console.log(`Found ${answersCount} answers for activity ${activityId}`);
+      return res.status(200).json({ message: `Se encontraron ${answersCount} respuestas para la actividad ${activityId}`, count: answersCount });
+    });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+// Get count of activities
 router.get('/count', function(req, res, next) {
   try {
     console.log("--GET: /activities/count--");
@@ -55,6 +78,32 @@ router.get('/count', function(req, res, next) {
       console.log(`Found ${activitiesCount} activities`);
       return res.status(200).json({ message: `Se encontraron ${activitiesCount} actividades`, count: activitiesCount });
     });
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+router.get('/answers/:id', function(req, res, next) {
+  try {
+    const activityId = req.params.id;
+    console.log(`--GET: /activities/answers/${activityId}--`);
+
+    const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
+
+    connection.query(query, [activityId], (queryError, queryResults, queryFields) => {
+      if (queryError) {
+        console.error('Error querying the database:', queryError);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (queryResults.length === 0) {
+        console.log(`No answers in activity ${activityId}`);
+        return res.status(404).json({ message: `No se encontraron evidencias en la actividad ${activityId}` });
+      }
+      console.log(`${queryResults.length} answers were found in activity ${activityId}`);
+      return res.status(200).json({ message: `${queryResults.length} evidencias fueron encontradas en la actividad ${activityId}`, answers: queryResults[0] });
+    });
+
   } catch (tcErr) {
     console.error('Error:', tcErr);
     return res.status(500).json({ message: 'Error interno del servidor' });

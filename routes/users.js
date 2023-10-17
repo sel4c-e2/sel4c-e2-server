@@ -144,7 +144,7 @@ router.get('/:id', function(req, res, next) {
   
     console.log(`--GET: /users/${userId}--`);
 
-    const query = 'SELECT * FROM users WHERE user_id = ?';
+    const query = 'SELECT users.*, countries.name as country_name, universities.name as university_name FROM users LEFT JOIN countries ON users.country_id = countries.country_id LEFT JOIN universities ON users.university_id = universities.university_id WHERE user_id = ?';
 
     connection.query(query, [userId], function (error, results, fields) {
       if (error) {
