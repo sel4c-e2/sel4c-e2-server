@@ -89,7 +89,7 @@ router.get('/answers/:id', function(req, res, next) {
     const activityId = req.params.id;
     console.log(`--GET: /activities/answers/${activityId}--`);
 
-    const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
+    const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, activities_answers.created_at, activities_answers.updated_at, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
 
     connection.query(query, [activityId], (queryError, queryResults, queryFields) => {
       if (queryError) {
