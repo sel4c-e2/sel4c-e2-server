@@ -77,25 +77,44 @@ router.get('/display/:display', function(req, res, next) {
     }
 });
 
-router.get('/answers/user-id/:userId', function(req, res, next) {
+router.get('/answers/:display/user-id/:userId', function(req, res, next) {
     try {
+        const display = req.params.display;
         const userId = req.params.userId;
 
-        console.log(`--GET: /questions/answers/user-id/${userId}--`);
+        console.log(`--GET: /questions/answers/${display}/user-id/${userId}--`);
 
-        const query = 'SELECT * FROM questions_answers WHERE user_id = ?';
+        let query;
+        let displayTxt;
+        switch (display) {
+            case 'start':
+                displayTxt = ' del cuestionario inicial';
+                break;
+            case 'end':
+                displayTxt = ' del cuestionario final';
+                break;
+            default:
+                displayTxt = '';
+            break;
+        }
 
+        if (display == "all") {
+            query = 'SELECT questions_answers.*, questions.* FROM questions_answers JOIN questions ON questions_answers.question_id = questions.id WHERE questions_answers.user_id = ?';
+        } else {
+            query = `SELECT questions_answers.*, questions.* FROM questions_answers JOIN questions ON questions_answers.question_id = questions.id WHERE questions_answers.user_id = ? AND questions.display = '${display}'`;
+        }
+        
         connection.query(query, [userId], (error, results, fields) => {
             if (error) {
                 console.error('Error querying the database:', error);
                 return res.status(500).json({ message: 'Error interno del servidor' });
             }
             if (results.length === 0) {
-                console.log(`User: "${userId}" has not answered any questions`);
-                return res.status(404).json({ message: `Este alumno no ha contestado ninguna pregunta` });
+                console.log(`User: "${userId}" has not answered any questions from ${display} quiz`);
+                return res.status(404).json({ message: `Este alumno no ha contestado ninguna pregunta ${displayTxt}` });
             }
-            console.log(`User ${userId} has answered ${results.length} questions`);
-            return res.status(200).json({ message: `El usuario ${userId} ha contestado ${results.length} preguntas`, answers: results });
+            console.log(`User ${userId} has answered ${results.length} questions from ${display} quiz`);
+            return res.status(200).json({ message: `El usuario ${userId} ha contestado ${results.length} preguntas ${displayTxt}`, answers: results });
         });
     } catch (tcErr) {
         console.error('Error:', tcErr);
