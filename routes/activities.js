@@ -101,7 +101,7 @@ router.get('/answers/:id', function(req, res, next) {
         return res.status(404).json({ message: `No se encontraron evidencias en la actividad ${activityId}` });
       }
       console.log(`${queryResults.length} answers were found in activity ${activityId}`);
-      return res.status(200).json({ message: `${queryResults.length} evidencias fueron encontradas en la actividad ${activityId}`, answers: queryResults[0] });
+      return res.status(200).json({ message: `${queryResults.length} evidencias fueron encontradas en la actividad ${activityId}`, answers: queryResults });
     });
 
   } catch (tcErr) {
