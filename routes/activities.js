@@ -136,6 +136,32 @@ router.get('/:id', function(req, res, next) {
   }
 });
 
+router.post('/answers', function(req, res, next) {
+  try {
+    const activityId = req.params.id;
+    console.log(`--POST: /activities/answers/${activityId}--`);
+
+    const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, activities_answers.created_at, activities_answers.updated_at, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
+
+    connection.query(query, [activityId], (queryError, queryResults, queryFields) => {
+      if (queryError) {
+        console.error('Error querying the database:', queryError);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (queryResults.length === 0) {
+        console.log(`No answers in activity ${activityId}`);
+        return res.status(404).json({ message: `No se encontraron evidencias en la actividad ${activityId}` });
+      }
+      console.log(`${queryResults.length} answers were found in activity ${activityId}`);
+      return res.status(200).json({ message: `${queryResults.length} evidencias fueron encontradas en la actividad ${activityId}`, answers: queryResults });
+    });
+
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 router.post('/upload', upload.single('file'), (req, res) => {
   const { user_id, activity_id } = req.body;
   const filePath = path.join('uploads', req.file.filename);

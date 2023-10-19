@@ -65,8 +65,8 @@ https://sel4c-e2-server-49c8146f2364.herokuapp.com
 
 11. **DELETE /users/:id**
 
-    - **Descripción:** Elimina un usuario por su ID.
-    - **Parámetros:** `id` (ID del usuario).
+    - **Descripción:** Elimina un usuario por su ID, se necesita un token de super administrador para llamar esta API.
+    - **Parámetros:** `id` (ID del usuario) y token de administrador.
     - **Respuesta:** Mensaje de éxito.
  
 ## Rutas de "/admins"
