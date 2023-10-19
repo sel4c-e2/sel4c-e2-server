@@ -145,10 +145,10 @@ https://sel4c-e2-server-49c8146f2364.herokuapp.com
    - **Parámetros:** `display` (Configuración de visualización).
    - **Respuesta:** JSON con la información de las preguntas que tienen la configuración de visualización especificada.
 
-4. **GET /questions/answers/user-id/:userId**
+4. **GET /questions/:display/answers/user-id/:userId**
 
-   - **Descripción:** Obtiene las respuestas de un usuario por su ID.
-   - **Parámetros:** `userId` (ID del usuario).
+   - **Descripción:** Obtiene las respuestas de un usuario en el cuestionario por su ID y display ('start', 'end' ó 'all').
+   - **Parámetros:** `userId` (ID del usuario), `display` (Cuestionario: 'start', 'end' ó 'all')`.
    - **Respuesta:** JSON con las respuestas del usuario.
 
 5. **POST /questions/answers**
