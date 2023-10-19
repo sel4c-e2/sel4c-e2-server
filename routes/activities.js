@@ -13,7 +13,10 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1024 * 1024 * 10 }
+});
 
 router.get('/', function(req, res, next) {
   try {
@@ -89,7 +92,8 @@ router.get('/answers/:id', function(req, res, next) {
     const activityId = req.params.id;
     console.log(`--GET: /activities/answers/${activityId}--`);
 
-    const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, activities_answers.created_at, activities_answers.updated_at, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
+    const query = 'SELECT activities_answers.*, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
+    // const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, activities_answers.created_at, activities_answers.updated_at, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
 
     connection.query(query, [activityId], (queryError, queryResults, queryFields) => {
       if (queryError) {
@@ -136,26 +140,26 @@ router.get('/:id', function(req, res, next) {
   }
 });
 
-router.post('/answers', function(req, res, next) {
+router.post('/answers', upload.single('file'), function(req, res, next) {
   try {
-    const activityId = req.params.id;
-    console.log(`--POST: /activities/answers/${activityId}--`);
-
-    const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, activities_answers.created_at, activities_answers.updated_at, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
-
-    connection.query(query, [activityId], (queryError, queryResults, queryFields) => {
+    const { activityId, userId, answer } = req.body;
+    const query = 'INSERT INTO activities_answers (activity_id, user_id, answer, file_path, file_name) VALUES (?, ?, ?, ?, ?)';
+    let values;
+    if (req.file) {
+      const filePath = path.join('uploads', req.file.filename);
+      console.log(`--POST: /activities/answers (file upload)--`);
+      values = [activityId, userId, answer, filePath, req.file.originalname];
+    } else {
+      console.log(`--POST: /activities/answers (text answer)--`);
+      values = [activityId, userId, answer, null, null];
+    }
+    connection.query(query, values, (queryError, queryResults, queryFields) => {
       if (queryError) {
         console.error('Error querying the database:', queryError);
         return res.status(500).json({ message: 'Error interno del servidor' });
       }
-      if (queryResults.length === 0) {
-        console.log(`No answers in activity ${activityId}`);
-        return res.status(404).json({ message: `No se encontraron evidencias en la actividad ${activityId}` });
-      }
-      console.log(`${queryResults.length} answers were found in activity ${activityId}`);
-      return res.status(200).json({ message: `${queryResults.length} evidencias fueron encontradas en la actividad ${activityId}`, answers: queryResults });
+      return res.status(200).json({ message: 'Respuesta guardada exitosamente' });
     });
-
   } catch (tcErr) {
     console.error('Error:', tcErr);
     return res.status(500).json({ message: 'Error interno del servidor' });

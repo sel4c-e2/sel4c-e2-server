@@ -4,7 +4,7 @@ var jwt = require('jsonwebtoken');
 var { connection } = require('../db');
 var router = express.Router();
 
-const authSuperAdmin = require('../middleware/authMiddleware');
+const { authSuperAdmin } = require('../middleware/authMiddleware');
 
 // Get all users
 router.get('/', function(req, res, next) {
