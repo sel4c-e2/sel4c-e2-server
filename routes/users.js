@@ -4,6 +4,41 @@ var jwt = require('jsonwebtoken');
 var { connection } = require('../db');
 var router = express.Router();
 
+function authorization(req, res, next) {
+  const token = req.headers.authorization;
+
+  console.log(`Checking admin's authorization`);
+  console.log(token);
+
+  if (!token) {
+    return res.status(401).json({ message: 'No autorizado' });
+  }
+  jwt.verify(token.replace('Bearer ', ''), process.env.JWT_KEY, function(tokenErr, decoded) {
+    if (tokenErr) {
+      console.log("Error: ", tokenErr);
+      return res.status(401).json({ message: 'Token no valido' });
+    }
+    const email = decoded.email;
+    const query = 'SELECT super FROM admins WHERE email = ?';
+    connection.query(query, [email], function (error, results, fields) {
+      if (error) {
+        console.error('Error checking permissions:', error);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (results.length === 0) {
+        console.log('Admin not found');
+        return res.status(404).json({ message: 'Administrador no encontrado' });
+      }
+      const isSuper = results[0].super;
+      if (isSuper) {
+        next();
+      } else {
+        return res.status(403).json({ message: 'Unauthorized' });
+      }
+    });
+  });
+}
+
 // Get all users
 router.get('/', function(req, res, next) {
   try {
@@ -331,28 +366,50 @@ router.put('/:id', function(req, res, next) {
 });
 
 // Delete a specific user by user_id
-router.delete('/:id', function(req, res, next) {
+router.delete('/:id', authorization, function(req, res, next) {
   try {
     const userId = req.params.id;
 
     console.log(`--DELETE: /users/${userId}--`);
 
-    const query = 'DELETE FROM users WHERE user_id = ?';
+    // Step 1: Delete answers from activities_answers
+    const deleteActivitiesAnswersQuery = 'DELETE FROM activities_answers WHERE user_id = ?';
 
-    connection.query(query, [userId], function (error, results, fields) {
+    connection.query(deleteActivitiesAnswersQuery, [userId], function (error, results, fields) {
       if (error) {
-        console.error('Error deleting user:', error);
+        console.error('Error deleting activities answers:', error);
         return res.status(500).json({ message: 'Error interno del servidor' });
       }
 
-      if (results.affectedRows === 0) {
-        console.error('User not found');
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-      }
+      // Step 2: Delete answers from questions_answers
+      const deleteQuestionsAnswersQuery = 'DELETE FROM questions_answers WHERE user_id = ?';
 
-      console.error(`User ${userId} deleted successfully`);
-      return res.status(200).json({ message: `Usuario ${userId} eliminado exitosamente` });
+      connection.query(deleteQuestionsAnswersQuery, [userId], function (error, results, fields) {
+        if (error) {
+          console.error('Error deleting questions answers:', error);
+          return res.status(500).json({ message: 'Error interno del servidor' });
+        }
+
+        // Step 3: Delete the user
+        const deleteUserQuery = 'DELETE FROM users WHERE user_id = ?';
+
+        connection.query(deleteUserQuery, [userId], function (error, results, fields) {
+          if (error) {
+            console.error('Error deleting user:', error);
+            return res.status(500).json({ message: 'Error interno del servidor' });
+          }
+
+          if (results.affectedRows === 0) {
+            console.error('User not found');
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+          }
+
+          console.error(`User ${userId} deleted successfully`);
+          return res.status(200).json({ message: `Usuario ${userId} eliminado exitosamente` });
+        });
+      });
     });
+
   } catch (tcErr) {
     console.error('Error:', tcErr);
     return res.status(500).json({ message: 'Error interno del servidor' });
