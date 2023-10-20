@@ -212,46 +212,78 @@ https://sel4c-e2-server-49c8146f2364.herokuapp.com
 
    - **Descripción:** Obtiene todas las actividades.
    - **Parámetros:** Ninguno.
-   - **Respuesta:** JSON con las actividades.
+   - **Respuesta:** JSON con la información de las actividades.
 
 2. **GET /activities/count**
 
    - **Descripción:** Obtiene el conteo total de actividades.
    - **Parámetros:** Ninguno.
-   - **Respuesta:** JSON con el conteo.
+   - **Respuesta:** JSON con el conteo de actividades.
 
-3. **GET /activities/:id**
+3. **GET /activities/answers/user/:userId**
 
-   - **Descripción:** Obtiene una actividad por ID.
+   - **Descripción:** Obtiene las respuestas de un usuario en todas las actividades.
+   - **Parámetros:** `userId` (ID del usuario).
+   - **Respuesta:** JSON con las respuestas del usuario.
+
+4. **GET /activities/answers/:activityId/:userId**
+
+   - **Descripción:** Obtiene la respuesta de un usuario a una actividad específica.
+   - **Parámetros:** `activityId` (ID de la actividad), `userId` (ID del usuario).
+   - **Respuesta:** JSON con la respuesta del usuario.
+
+5. **GET /activities/answers/:id**
+
+   - **Descripción:** Obtiene las respuestas de una actividad por su ID.
    - **Parámetros:** `id` (ID de la actividad).
-   - **Respuesta:** JSON con la actividad.
-
-4. **GET /activities/answers/:id**
-
-   - **Descripción:** Obtiene las respuestas de una actividad por ID.
-   - **Parámetros:** `id` (ID de la actividad).
-   - **Respuesta:** JSON con las respuestas.
-
-5. **GET /activities/count/answers/:activityId**
-
-   - **Descripción:** Obtiene el conteo de respuestas para una actividad por ID.
-   - **Parámetros:** `activityId` (ID de la actividad).
-   - **Respuesta:** JSON con el conteo.
+   - **Respuesta:** JSON con las respuestas de la actividad.
 
 6. **POST /activities/answers**
 
-   - **Descripción:** Sube una respuesta a una actividad, ya sea un archivo o texto.
-   - **Parámetros:** `activityId` (ID de la actividad), `userId` (ID del usuario), `answer` (respuesta).
-   - **Respuesta:** JSON con mensaje de éxito.
+   - **Descripción:** Registra la respuesta de un usuario a una actividad.
+   - **Parámetros:** Datos de la respuesta (activityId, userId, answer).
+   - **Respuesta:** JSON con el mensaje de éxito.
 
 7. **POST /activities/upload**
 
-   - **Descripción:** Sube un archivo asociado a una actividad.
-   - **Parámetros:** `user_id` (ID del usuario), `activity_id` (ID de la actividad).
-   - **Respuesta:** JSON con mensaje de éxito y ID del archivo.
+   - **Descripción:** Sube un archivo relacionado con una actividad.
+   - **Parámetros:** Datos del archivo (userId, activityId, file).
+   - **Respuesta:** JSON con el mensaje de éxito.
 
 8. **GET /activities/download/:user_id/:activity_id**
 
-   - **Descripción:** Descarga un archivo asociado a una actividad.
+   - **Descripción:** Descarga un archivo relacionado con una actividad.
    - **Parámetros:** `user_id` (ID del usuario), `activity_id` (ID de la actividad).
    - **Respuesta:** Archivo descargable.
+
+9. **POST /activities/answers/files**
+
+   - **Descripción:** Registra la respuesta de un usuario a una actividad junto con un archivo.
+   - **Parámetros:** Datos de la respuesta (activityId, userId, answer, file).
+   - **Respuesta:** JSON con el mensaje de éxito.
+
+10. **GET /activities/answers/count/:activityId**
+
+    - **Descripción:** Obtiene el conteo total de respuestas a una actividad.
+    - **Parámetros:** `activityId` (ID de la actividad).
+    - **Respuesta:** JSON con el conteo de respuestas.
+
+11. **GET /activities/answers/:activityId/count/valid**
+
+    - **Descripción:** Obtiene el conteo de respuestas válidas a una actividad.
+    - **Parámetros:** `activityId` (ID de la actividad).
+    - **Respuesta:** JSON con el conteo de respuestas válidas.
+
+12. **GET /activities/answers/valid/:activityId/user/:userId**
+
+    - **Descripción:** Obtiene la respuesta válida de un usuario a una actividad específica.
+    - **Parámetros:** `activityId` (ID de la actividad), `userId` (ID del usuario).
+    - **Respuesta:** JSON con la respuesta válida del usuario.
+
+13. **POST /activities/answers/valid**
+
+    - **Descripción:** Registra la respuesta válida de un usuario a una actividad.
+    - **Parámetros:** Datos de la respuesta válida (activityId, userId, validAnswer).
+    - **Respuesta:** JSON con el mensaje de éxito.
+
+
