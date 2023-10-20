@@ -1,6 +1,20 @@
 # sel4c-e2-server
 https://sel4c-e2-server-49c8146f2364.herokuapp.com
 
+## Rutas de "/"
+
+   1. **GET /uploads/:filePath**
+   
+      - **Descripción:** Descarga un archivo desde la carpeta de subidas.
+      - **Parámetros:** `filePath` (Ruta del archivo).
+      - **Respuesta:** Archivo descargable.
+
+   2. **GET /**
+
+      - **Descripción:** Ruta raíz, utilizada para verificar el estado del servidor.
+      - **Parámetros:** Ninguno.
+      - **Respuesta:** Mensaje de éxito.
+
 ## Rutas de "/users"
 
 1. **GET /users**
@@ -224,13 +238,19 @@ https://sel4c-e2-server-49c8146f2364.herokuapp.com
    - **Parámetros:** `activityId` (ID de la actividad).
    - **Respuesta:** JSON con el conteo.
 
-6. **POST /activities/upload**
+6. **POST /activities/answers**
+
+   - **Descripción:** Sube una respuesta a una actividad, ya sea un archivo o texto.
+   - **Parámetros:** `activityId` (ID de la actividad), `userId` (ID del usuario), `answer` (respuesta).
+   - **Respuesta:** JSON con mensaje de éxito.
+
+7. **POST /activities/upload**
 
    - **Descripción:** Sube un archivo asociado a una actividad.
    - **Parámetros:** `user_id` (ID del usuario), `activity_id` (ID de la actividad).
    - **Respuesta:** JSON con mensaje de éxito y ID del archivo.
 
-7. **GET /activities/download/:user_id/:activity_id**
+8. **GET /activities/download/:user_id/:activity_id**
 
    - **Descripción:** Descarga un archivo asociado a una actividad.
    - **Parámetros:** `user_id` (ID del usuario), `activity_id` (ID de la actividad).

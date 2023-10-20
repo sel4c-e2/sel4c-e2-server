@@ -87,13 +87,64 @@ router.get('/count', function(req, res, next) {
   }
 });
 
+router.get('/answers/user/:userId', function(req, res, next) {
+  try {
+    const { userId } = req.params;
+    
+    console.log(`--GET: /activities/answers/user/${userId}--`);
+
+    const query = 'SELECT * FROM activities_answers WHERE user_id = ? ORDER BY created_at';
+    connection.query(query, [userId], (queryError, queryResults, queryFields) => {
+      if (queryError) {
+        console.error('Error querying the database:', queryError);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (queryResults.length === 0) {
+        console.log(`User ${userId} has not answered any activity`);
+        return res.status(404).json({ message: `El alumno no ha mandado su evidencia en ninguna actividad` });
+      }
+      console.log(`User ${userId} has ${queryResults.length} answers`);
+      return res.status(200).json({ message: `El alumno ha mandado ${queryResults.length} evidencias`, answers: queryResults });
+    });
+
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
+router.get('/answers/:activityId/:userId', function(req, res, next) {
+  try {
+    const { activityId, userId } = req.params;
+    
+    console.log(`--GET: /activities/answers/${activityId}/${userId}--`);
+
+    const query = 'SELECT * FROM activities_answers WHERE activity_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT 1';
+    connection.query(query, [activityId, userId], (queryError, queryResults, queryFields) => {
+      if (queryError) {
+        console.error('Error querying the database:', queryError);
+        return res.status(500).json({ message: 'Error interno del servidor' });
+      }
+      if (queryResults.length === 0) {
+        console.log(`User ${userId} has no answers in activity ${activityId}`);
+        return res.status(404).json({ message: `El alumno no ha mandado su evidencia en la actividad ${activityId}` });
+      }
+      console.log(`User ${userId} has answered activty ${activityId}`);
+      return res.status(200).json({ message: `El alumno mando su evidencia de la actividad ${activityId}`, answer: queryResults[0] });
+    });
+
+  } catch (tcErr) {
+    console.error('Error:', tcErr);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+});
+
 router.get('/answers/:id', function(req, res, next) {
   try {
     const activityId = req.params.id;
     console.log(`--GET: /activities/answers/${activityId}--`);
 
     const query = 'SELECT activities_answers.*, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
-    // const query = 'SELECT activities_answers.id, activities_answers.activity_id, activities_answers.user_id, activities_answers.answer, activities_answers.created_at, activities_answers.updated_at, users.user_id, users.name FROM activities_answers JOIN users ON activities_answers.user_id = users.user_id WHERE activities_answers.activity_id = ?';
 
     connection.query(query, [activityId], (queryError, queryResults, queryFields) => {
       if (queryError) {
