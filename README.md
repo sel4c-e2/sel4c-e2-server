@@ -244,43 +244,31 @@ https://sel4c-e2-server-49c8146f2364.herokuapp.com
    - **Parámetros:** Datos de la respuesta (activityId, userId, answer).
    - **Respuesta:** JSON con el mensaje de éxito.
 
-7. **POST /activities/upload**
-
-   - **Descripción:** Sube un archivo relacionado con una actividad.
-   - **Parámetros:** Datos del archivo (userId, activityId, file).
-   - **Respuesta:** JSON con el mensaje de éxito.
-
-8. **GET /activities/download/:user_id/:activity_id**
-
-   - **Descripción:** Descarga un archivo relacionado con una actividad.
-   - **Parámetros:** `user_id` (ID del usuario), `activity_id` (ID de la actividad).
-   - **Respuesta:** Archivo descargable.
-
-9. **POST /activities/answers/files**
+7. **POST /activities/answers/files**
 
    - **Descripción:** Registra la respuesta de un usuario a una actividad junto con un archivo.
    - **Parámetros:** Datos de la respuesta (activityId, userId, answer, file).
    - **Respuesta:** JSON con el mensaje de éxito.
 
-10. **GET /activities/answers/count/:activityId**
+8. **GET /activities/answers/count/:activityId**
 
     - **Descripción:** Obtiene el conteo total de respuestas a una actividad.
     - **Parámetros:** `activityId` (ID de la actividad).
     - **Respuesta:** JSON con el conteo de respuestas.
 
-11. **GET /activities/answers/:activityId/count/valid**
+9. **GET /activities/answers/:activityId/count/valid**
 
     - **Descripción:** Obtiene el conteo de respuestas válidas a una actividad.
     - **Parámetros:** `activityId` (ID de la actividad).
     - **Respuesta:** JSON con el conteo de respuestas válidas.
 
-12. **GET /activities/answers/valid/:activityId/user/:userId**
+10. **GET /activities/answers/valid/:activityId/user/:userId**
 
     - **Descripción:** Obtiene la respuesta válida de un usuario a una actividad específica.
     - **Parámetros:** `activityId` (ID de la actividad), `userId` (ID del usuario).
     - **Respuesta:** JSON con la respuesta válida del usuario.
 
-13. **POST /activities/answers/valid**
+11. **POST /activities/answers/valid**
 
     - **Descripción:** Registra la respuesta válida de un usuario a una actividad.
     - **Parámetros:** Datos de la respuesta válida (activityId, userId, validAnswer).
