@@ -7,7 +7,7 @@ var router = express.Router();
 const { authSuperAdmin } = require('../middleware/authMiddleware');
 
 // Get all admins
-router.get('/', function(req, res, next) {
+router.get('/', authSuperAdmin, function(req, res, next) {
   try {
     console.log("--GET: /admins--");
 
